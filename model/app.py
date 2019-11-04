@@ -1,53 +1,32 @@
-# Dependencies
 from flask import Flask, request, jsonify
 from sklearn.externals import joblib
 import pickle
-# from keras import backend as K
 import traceback
 import pandas as pd
 import numpy as np
 
-# Your API definition
+
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render template('index.html')
 
 @app.route('/predict',methods=['POST'])
 def predict():
+    '''
+    For rendering results on HTML GUI
+    '''
+    int_features = [int(x) for x in request.form.values()]
+    final_features = [np.array(int_features)]
+    prediction = model.predict(final_features)
 
-	# tf.keras.backend.clear_session()
-	# K.clear_session()
-	lr = joblib.load("reg.pkl") # Load "model.pkl"
+    output = round(prediction[0], 2)
 
-	model_columns = joblib.load("model_reg.pkl") # Load "model_columns.pkl"
-
-	if lr:
-		try:
-			#
-
-			json_ = request.json
-			# print(json_)
-			query = pd.DataFrame(json_, index=[0])
-			query = query.reindex(columns=model_columns, fill_value=0)
-
-			print(query)
-			prediction = lr.predict(query).round()
-
-			return jsonify({'prediction': str(prediction[0])})
-		except:
-			return jsonify({'trace': traceback.format_exc()})
-			#K.clear_session()	
-	else:
-		print ('Train the model first')
-		return ('No model here to use')
+    return render_template('index.html', prediction_text='Solar Production should be kW {}'.format(output))
 
 
-if __name__ == '__main__':
-    try:
-        port = int(sys.argv[1]) # This is for a command-line input
-    except:
-        port = 12345 # If you don't provide any port the port will be set to 12345
+if __name__ == "__main__":
+    app.run(debug=True)
 
-    app.run(port=port, debug=False,threaded=False)
+
