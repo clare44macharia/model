@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 
 
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -14,12 +15,16 @@ def home():
 
 @app.route('/predict',methods=['POST'])
 def predict():
+	lr = joblib.load("reg.pkl") # Load "model.pkl"
+
+	model_columns = joblib.load("model_reg.pkl") # Load "model_columns.pkl"
+
     '''
     For rendering results on HTML GUI
     '''
     int_features = [int(x) for x in request.form.values()]
     final_features = [np.array(int_features)]
-    prediction = model.predict(final_features)
+    prediction = lr.predict(final_features)
 
     output = round(prediction[0], 2)
 
