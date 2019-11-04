@@ -1,37 +1,49 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify,render_template
 from sklearn.externals import joblib
 import pickle
 import traceback
 import pandas as pd
 import numpy as np
 
-
-
+# Your API definition
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return render template('index.html')
 
-@app.route('/predict',methods=['POST'])
+@app.route('/', methods=['POST'])
 def predict():
+
 	lr = joblib.load("reg.pkl") # Load "model.pkl"
 
 	model_columns = joblib.load("model_reg.pkl") # Load "model_columns.pkl"
 
-    '''
-    For rendering results on HTML GUI
-    '''
-    int_features = [int(x) for x in request.form.values()]
-    final_features = [np.array(int_features)]
-    prediction = lr.predict(final_features)
+	if lr:
+		try:
+			#
 
-    output = round(prediction[0], 2)
+			json_ = request.json
+			# print(json_)
+			query = pd.DataFrame(json_, index=[0])
+			query = query.reindex(columns=model_columns, fill_value=0)
 
-    return render_template('index.html', prediction_text='Solar Production should be kW {}'.format(output))
+			print(query)
+			prediction = lr.predict(query).round()
+
+			return jsonify({'prediction': str(prediction[0])})
+		except:
+			return jsonify({'trace': traceback.format_exc()})
+			#K.clear_session()	
+	else:
+		print ('Train the model first')
+		return ('No model here to use')
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+if __name__ == '__main__':
+    try:
+        port = int(sys.argv[1]) # This is for a command-line input
+    except:
+        port = 12345 # If you don't provide any port the port will be set to 12345
+
+    app.run(port=port, debug=False,threaded=False)
+
 
 
