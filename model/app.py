@@ -1,6 +1,7 @@
 # Dependencies
 from flask import Flask, request, jsonify
 from sklearn.externals import joblib
+import pickle
 # from keras import backend as K
 import traceback
 import pandas as pd
