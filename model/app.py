@@ -10,7 +10,11 @@ import numpy as np
 # Your API definition
 app = Flask(__name__)
 
-@app.route('/', methods=['POST'])
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+@app.route('/predict',methods=['POST'])
 def predict():
 
 	# tf.keras.backend.clear_session()
